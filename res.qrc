@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/assets">
+        <file>fonts/starjedi.ttf</file>
+        <file>images/asteroid.png</file>
+        <file>images/background.png</file>
+        <file>images/bullet.png</file>
+        <file>images/explosion00.png</file>
+        <file>images/explosion01.png</file>
+        <file>images/explosion002png</file>
+        <file>images/explosion03.png</file>
+        <file>images/explosion04.png</file>
+        <file>images/explosion05.png</file>
+        <file>images/explosion06.png</file>
+        <file>images/explosion08.png</file>
+        <file>images/explosion09.png</file>
+        <file>images/explosion10.png</file>
+        <file>images/gameover.png</file>
+        <file>images/player.png</file>
+        <file>images/start.png</file>
+        <file>sounds/bgm.mp3</file>
+        <file>sounds/crash.wav</file>
+        <file>sounds/explosion.wav</file>
+        <file>sounds/shot.wav</file>
+    </qresource>
+</RCC>
