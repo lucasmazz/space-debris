@@ -75,6 +75,7 @@ Game::~Game()
 
 /**
  * Plays background music and starts the game loop.
+ *
  * Should be called after game instantiation to completely start it.
  */
 void Game::start()
