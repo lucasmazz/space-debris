@@ -24,10 +24,10 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     // Loading sprites.
-    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> background_sprites;
-    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> player_sprites;
-    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> asteroid_sprites;
-    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> bullet_sprites;
+    Sprite::Set background_sprites;
+    Sprite::Set player_sprites;
+    Sprite::Set asteroid_sprites;
+    Sprite::Set bullet_sprites;
 
     background_sprites["default"] = {
         std::make_shared<Sprite>(":/assets/images/background.png", 0),

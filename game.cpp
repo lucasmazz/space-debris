@@ -1,7 +1,7 @@
 #include "game.h"
 
 
-std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>>> Game::sprites;
+Sprite::Collection Game::sprites;
 
 
 Game::Game(std::function<void()> callback) : callback_(callback)

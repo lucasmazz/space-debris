@@ -1,11 +1,20 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#include <memory>
+#include <unordered_map>
+#include <vector>
+#include <string>
+
 #include <QPixmap>
 
 
 class Sprite : public QPixmap
 {
+
+public:
+    using Collection = std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>>>;
+    using Set = std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>>;
 
 public:
     Sprite(const char path[], float time=0);

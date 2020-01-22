@@ -64,7 +64,7 @@ private:
     void update(const float time_elapsed);
 
 public:
-    static std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>>> sprites;
+    static Sprite::Collection sprites;
 
 private:
     bool running_ = true;

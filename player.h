@@ -10,7 +10,7 @@ class Player : public Entity
 {
 
 public:
-    Player(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites);
+    Player(Sprite::Set sprites);
 
     void crash();
     void brake();

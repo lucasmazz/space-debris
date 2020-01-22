@@ -9,7 +9,7 @@ class Bullet : public Entity
 {
 
 public:
-    Bullet(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites);
+    Bullet(Sprite::Set sprites);
 };
 
 #endif // BULLET_H

@@ -3,7 +3,7 @@
 
 unsigned int Entity::Entity::current_id_ = 0;
 
-Entity::Entity(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites) : sprites_(sprites)
+Entity::Entity(Sprite::Set sprites) : sprites_(sprites)
 {
     if (current_id_ == 1000)
         current_id_ = 0;
