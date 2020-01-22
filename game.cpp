@@ -216,10 +216,12 @@ void Game::add(std::shared_ptr<Enemy> enemy)
  */
 void Game::remove(std::shared_ptr<Enemy> enemy)
 {
-    std::function<void()> lambda = [this, enemy]()
+    unsigned int id = enemy->id();
+
+    std::function<void()> lambda = [this, id]()
     {
-        removeItem(enemy.get());
-        enemies_.erase(enemy->id());
+        removeItem(enemies_[id].get());
+        enemies_.erase(id);
     };
 
     enemy->die(lambda);

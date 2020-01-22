@@ -9,7 +9,7 @@ class Bullet : public Entity
 {
 
 public:
-    Bullet(Sprite::Set sprites);
+    Bullet(Sprite::Set& sprites);
 };
 
 #endif // BULLET_H

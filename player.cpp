@@ -1,7 +1,7 @@
 #include "player.h"
 
 
-Player::Player(Sprite::Set sprites) : Entity(sprites)
+Player::Player(Sprite::Set& sprites) : Entity(sprites)
 {
     maxSpeed(500, 500);
     maxAcceleration(500, 500);

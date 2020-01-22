@@ -8,7 +8,7 @@ class Enemy : public Entity
 {
 
 public:
-    Enemy(Sprite::Set sprites);
+    Enemy(Sprite::Set& sprites);
 
     void move(const float elapsed_time);
     void die(std::function<void()> callback=NULL);

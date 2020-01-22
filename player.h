@@ -10,7 +10,7 @@ class Player : public Entity
 {
 
 public:
-    Player(Sprite::Set sprites);
+    Player(Sprite::Set& sprites);
 
     void crash();
     void brake();

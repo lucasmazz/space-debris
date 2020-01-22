@@ -15,7 +15,7 @@ class Entity : public QGraphicsPixmapItem
 {
 
 public:
-    Entity(Sprite::Set sprites);
+    Entity(Sprite::Set& sprites);
 
     void playSound(const char path[]);
 
@@ -57,7 +57,7 @@ protected:
     float max_speed_[2] {999, 999}; // x, y
     float max_acceleration_[2] {999, 999}; // x, y
 
-    Sprite::Set sprites_;
+    Sprite::Set& sprites_;
     std::vector<std::shared_ptr<Sprite>> current_animation_;
     unsigned int current_sprite_index_;
 

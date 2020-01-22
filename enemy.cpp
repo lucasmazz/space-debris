@@ -1,7 +1,7 @@
 #include "enemy.h"
 
 
-Enemy::Enemy(Sprite::Set sprites) : Entity(sprites)
+Enemy::Enemy(Sprite::Set& sprites) : Entity(sprites)
 {
     setTransformOriginPoint(pixmap().width()/2, pixmap().height()/2);
     rotation(rand() % 360);

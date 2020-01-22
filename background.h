@@ -7,7 +7,7 @@ class Background : public Entity
 {
 
 public:
-    Background(Sprite::Set sprites);
+    Background(Sprite::Set& sprites);
 
 };
 
