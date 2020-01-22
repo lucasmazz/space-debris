@@ -1,7 +1,7 @@
 #include "player.h"
 
 
-Player::Player(std::unordered_map<std::string, std::vector<Sprite *>> sprites) : Entity(sprites)
+Player::Player(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites) : Entity(sprites)
 {
     maxSpeed(500, 500);
     maxAcceleration(500, 500);

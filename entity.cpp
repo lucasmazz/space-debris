@@ -3,7 +3,7 @@
 
 unsigned int Entity::Entity::current_id_ = 0;
 
-Entity::Entity(std::unordered_map<std::string, std::vector<Sprite*>> sprites) : sprites_(sprites)
+Entity::Entity(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites) : sprites_(sprites)
 {
     if (current_id_ == 1000)
         current_id_ = 0;
@@ -262,8 +262,8 @@ void Entity::move(const float elapsed_time)
         speed(speed_[0],  speed_[1] + acceleration_[1]*elapsed_time);
     }
 
-    float distance_x = x() + int(speed_[0]*elapsed_time);
-    float distance_y = y() + int(speed_[1]*elapsed_time);
+    float distance_x = x() + speed_[0]*elapsed_time;
+    float distance_y = y() + speed_[1]*elapsed_time;
 
     setPos(distance_x, distance_y);
 }
@@ -282,7 +282,7 @@ void Entity::die()
  *
  * @param sprite
  */
-void Entity::updateSprite(Sprite* sprite)
+void Entity::updateSprite(std::shared_ptr<Sprite> sprite)
 {
     setPixmap(*sprite);
 }

@@ -10,17 +10,12 @@ Button::Button(const char text[], function<void()> callback) : callback_(callbac
 
     setRect(0,0,200,50);
 
-    button_text_ = new QGraphicsTextItem(text, this);
+    button_text_ = std::make_unique<QGraphicsTextItem>(text, this);
     button_text_->setFont(QFont ("Sans", 14));
     button_text_->setPos(rect().width()/2 - button_text_->boundingRect().width()/2,
                          rect().height()/2 - button_text_->boundingRect().height()/2);
 
     setAcceptHoverEvents(true);
-}
-
-Button::~Button()
-{
-    delete button_text_;
 }
 
 

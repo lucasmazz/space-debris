@@ -8,7 +8,7 @@ class Enemy : public Entity
 {
 
 public:
-    Enemy(std::unordered_map<std::string, std::vector<Sprite*>> sprites);
+    Enemy(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites);
 
     void move(const float elapsed_time);
     void die(std::function<void()> callback=NULL);

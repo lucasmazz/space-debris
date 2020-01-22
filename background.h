@@ -7,7 +7,7 @@ class Background : public Entity
 {
 
 public:
-    Background(std::unordered_map<std::string, std::vector<Sprite*>> sprites);
+    Background(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites);
 
 };
 

@@ -2,6 +2,7 @@
 #define SOUND_H
 
 #include <vector>
+#include <memory>
 
 #include <QMediaPlayer>
 
@@ -17,7 +18,7 @@ private:
     Sound();
 
 private:
-    static std::vector<QMediaPlayer*> channels_;
+    static std::vector<std::unique_ptr<QMediaPlayer>> channels_;
     static unsigned int index_;
 
 };

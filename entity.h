@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 #include <QGraphicsPixmapItem>
 
 #include "sound.h"
@@ -14,7 +15,7 @@ class Entity : public QGraphicsPixmapItem
 {
 
 public:
-    Entity(std::unordered_map<std::string, std::vector<Sprite*>> sprites);
+    Entity(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites);
 
     void playSound(const char path[]);
 
@@ -45,7 +46,7 @@ public:
     void die();
 
 protected:
-    void updateSprite(Sprite* sprite);
+    void updateSprite(std::shared_ptr<Sprite> sprite);
 
 protected:
     unsigned int id_;
@@ -56,8 +57,8 @@ protected:
     float max_speed_[2] {999, 999}; // x, y
     float max_acceleration_[2] {999, 999}; // x, y
 
-    std::unordered_map<std::string, std::vector<Sprite*>> sprites_;
-    std::vector<Sprite*> current_animation_;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites_;
+    std::vector<std::shared_ptr<Sprite>> current_animation_;
     unsigned int current_sprite_index_;
 
     std::function<void()> callback_ = NULL;

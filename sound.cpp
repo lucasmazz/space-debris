@@ -1,7 +1,7 @@
 #include "sound.h"
 
 
-std::vector<QMediaPlayer*> Sound::channels_;
+std::vector<std::unique_ptr<QMediaPlayer>> Sound::channels_;
 unsigned int Sound::index_ = 0;
 
 /**
@@ -29,5 +29,5 @@ void Sound::play(const char path[])
 void Sound::channels(const unsigned int number)
 {
     for(unsigned int i=0; i < number; i++)
-        channels_.push_back(new QMediaPlayer());
+        channels_.push_back(std::make_unique<QMediaPlayer>());
 }

@@ -1,27 +1,25 @@
 #include "game.h"
 
-std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Sprite*>>> Game::sprites;
-QGraphicsView* Game::view;
+
+std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>>> Game::sprites;
 
 
 Game::Game(std::function<void()> callback) : callback_(callback)
 {
-    music_ = new QMediaPlayer();
-    player_ = new Player(Game::sprites.at("player"));
-    score_ = new Score();
-    health_ = new Health();
-    playlist_ = new QMediaPlaylist();
-    timer_ = new QTimer();
-
-    QTimer teste;
+    music_ = std::make_unique<QMediaPlayer>();
+    player_ = std::make_unique<Player>(Game::sprites.at("player"));
+    score_ = std::make_unique<Score>();
+    health_ = std::make_unique<Health>();
+    playlist_ = std::make_unique<QMediaPlaylist>();
+    timer_ = std::make_unique<QTimer>();
 
     // Just configurating the game scene.
     setSceneRect(0,0, 800, 600);
     setFocus();
 
-    // Is required 2 backgrounds in the scene to do the infinity background scroll.
-    backgrounds_.push_back(new Background(Game::sprites.at("background")));
-    backgrounds_.push_back(new Background(Game::sprites.at("background")));
+    // Is required 2 backgrounds in the scene to do the infinity scroll.
+    backgrounds_.push_back(std::make_unique<Background>(Game::sprites.at("background")));
+    backgrounds_.push_back(std::make_unique<Background>(Game::sprites.at("background")));
 
     // Setting backgrounds position.
     backgrounds_[0]->setPos(0, 0);
@@ -36,51 +34,43 @@ Game::Game(std::function<void()> callback) : callback_(callback)
     score_->setZValue(2);
 
     // Adding objects to the game scene.
-    addItem(backgrounds_[0]);
-    addItem(backgrounds_[1]);
-    addItem(player_);
-    addItem(score_);
-    addItem(health_);
+    addItem(backgrounds_[0].get());
+    addItem(backgrounds_[1].get());
+    addItem(player_.get());
+    addItem(score_.get());
+    addItem(health_.get());
 
     playlist_->addMedia(QUrl("qrc:/assets/sounds/bgm.mp3"));
     playlist_->setPlaybackMode(QMediaPlaylist::Loop);
-    music_->setPlaylist(playlist_);
+    music_->setPlaylist(playlist_.get());
 }
 
 
 Game::~Game()
 {
-    music_->stop();
-    timer_->stop();
-
-    delete music_;
-    delete playlist_;
-    delete timer_;
-    delete player_;
-    delete score_;
-    delete health_;
-
-    for (unsigned int i=0; i < backgrounds_.size(); i++) {
-        removeItem(backgrounds_[i]);
-        delete backgrounds_[i];
-    }
-
+    // Ensuring that the enemies will be deleted.
     for (auto i = enemies_.cbegin(), next_i = i; i != enemies_.cend(); i = next_i) {
         ++next_i;
-        removeItem(i->second);
-        delete i->second;
+        auto enemy = i->second;
+
+        removeItem(enemy.get());
+        enemies_.erase(enemy->id());
     }
 
+    // Ensuring that the bullets will be deleted.
     for (auto i = bullets_.cbegin(), next_i = i; i != bullets_.cend(); i = next_i) {
         ++next_i;
-        removeItem(i->second);
-        delete i->second;
+        auto bullet = i->second;
+
+        removeItem(bullet.get());
+        enemies_.erase(bullet->id());
     }
 
     backgrounds_.clear();
     enemies_.clear();
     bullets_.clear();
 }
+
 
 
 /**
@@ -98,8 +88,18 @@ void Game::start()
     start_time_ = std::chrono::high_resolution_clock::now();
 
     // Starting the game loop.
-    QObject::connect(timer_, SIGNAL(timeout()), this, SLOT(loop()));
+    QObject::connect(timer_.get(), SIGNAL(timeout()), this, SLOT(loop()));
     timer_->start(20);
+}
+
+
+/**
+ * Stops the background music and the timer. In addition, clears game object lists.
+ */
+void Game::stop()
+{
+    music_->stop();
+    timer_->stop();
 }
 
 
@@ -115,7 +115,7 @@ void Game::keyPressEvent(QKeyEvent* event)
 
     } else if (event->key() == Qt::Key_Space && !event->isAutoRepeat()) {
 
-        Bullet* bullet = new Bullet(Game::sprites.at("bullet"));
+        auto bullet = std::make_shared<Bullet>(Game::sprites.at("bullet"));
         *this << bullet;
 
     }
@@ -145,6 +145,7 @@ void Game::loop()
 
         start_time_ = stop_time_;
     } else {
+        stop();
         callback_();
     }
 }
@@ -155,7 +156,7 @@ void Game::loop()
  *
  * @param enemy
  */
-void Game::operator<<(Enemy* enemy)
+void Game::operator<<(std::shared_ptr<Enemy> enemy)
 {
     add(enemy);
 }
@@ -166,7 +167,7 @@ void Game::operator<<(Enemy* enemy)
  *
  * @param enemy
  */
-void Game::operator>>(Enemy* enemy)
+void Game::operator>>(std::shared_ptr<Enemy> enemy)
 {
     remove(enemy);
 }
@@ -177,7 +178,7 @@ void Game::operator>>(Enemy* enemy)
  *
  * @param bullet
  */
-void Game::operator<<(Bullet* bullet)
+void Game::operator<<(std::shared_ptr<Bullet> bullet)
 {
     add(bullet);
 }
@@ -188,7 +189,7 @@ void Game::operator<<(Bullet* bullet)
  *
  * @param bullet
  */
-void Game::operator>>(Bullet* bullet)
+void Game::operator>>(std::shared_ptr<Bullet> bullet)
 {
     remove(bullet);
 }
@@ -199,12 +200,12 @@ void Game::operator>>(Bullet* bullet)
  *
  * @param enemy
  */
-void Game::add(Enemy* enemy)
+void Game::add(std::shared_ptr<Enemy> enemy)
 {
     enemies_.insert({ enemy->id(), enemy });
     enemy->setPos(rand() % int(this->width() - enemy->pixmap().width()), -2*enemy->pixmap().height());
     enemy->setZValue(1);
-    addItem(enemy);
+    addItem(enemy.get());
 }
 
 
@@ -213,14 +214,12 @@ void Game::add(Enemy* enemy)
  *
  * @param enemy
  */
-void Game::remove(Enemy* enemy)
+void Game::remove(std::shared_ptr<Enemy> enemy)
 {
-
     std::function<void()> lambda = [this, enemy]()
     {
+        removeItem(enemy.get());
         enemies_.erase(enemy->id());
-        removeItem(enemy);
-        delete enemy;
     };
 
     enemy->die(lambda);
@@ -232,14 +231,14 @@ void Game::remove(Enemy* enemy)
  *
  * @param bullet
  */
-void Game::add(Bullet* bullet)
+void Game::add(std::shared_ptr<Bullet> bullet)
 {
     bullets_.insert({ bullet->id(), bullet });
     bullet->setPos(player_->x() + int(player_->pixmap().width())/2 - bullet->pixmap().width()/2,
                    player_->y() - bullet->pixmap().height());
 
     bullet->setZValue(1);
-    addItem(bullet);
+    addItem(bullet.get());
 }
 
 
@@ -248,12 +247,11 @@ void Game::add(Bullet* bullet)
  *
  * @param bullet
  */
-void Game::remove(Bullet* bullet)
+void Game::remove(std::shared_ptr<Bullet> bullet)
 {
     bullet->die();
-    removeItem(bullet);
+    removeItem(bullet.get());
     bullets_.erase(bullet->id());
-    delete bullet;
 }
 
 
@@ -270,7 +268,7 @@ void Game::spawnEnemies(const float time_elapsed)
         amount = 9;
 
     if (enemies_.size() < amount) {
-        Enemy* enemy = new Enemy(Game::sprites.at("asteroid"));
+        auto enemy = std::make_shared<Enemy>(Game::sprites.at("asteroid"));
         *this << enemy;
     }
 }
@@ -297,15 +295,14 @@ void Game::moveBackground(const float time_elapsed)
     }
 
     if (backgrounds_[0]->pos().y() > height()) {
-        removeItem(backgrounds_[0]);
-        delete backgrounds_[0];
+        removeItem(backgrounds_[0].get());
         backgrounds_.pop_front();
 
-        Background* new_background = new Background(Game::sprites.at("background"));
+        auto new_background = std::make_unique<Background>(Game::sprites.at("background"));
         new_background->setPos(0, -new_background->pixmap().height());
         new_background->setZValue(0);
-        addItem(new_background);
-        backgrounds_.push_back(new_background);
+        addItem(new_background.get());
+        backgrounds_.push_back(std::move(new_background));
     }
 }
 
@@ -318,19 +315,18 @@ void Game::moveBackground(const float time_elapsed)
  */
 void Game::moveEnemies(const float time_elapsed)
 {
+
     for (auto i = enemies_.cbegin(), next_i = i; i != enemies_.cend(); i = next_i) {
         ++next_i;
 
-        Enemy* enemy = i->second;
-        QList<QGraphicsItem*> colliding_items = collidingItems(enemy);
-
+        auto enemy = i->second;
 
         if (enemy->alive()) {
 
             enemy->move(time_elapsed);
 
             // Enemy is out of reach or enemy is colliding with player_.
-            if (enemy->pos().y() > height() || enemy->collidesWithItem(player_)) {
+            if (enemy->pos().y() > height() || enemy->collidesWithItem(player_.get())) {
                 --(*health_);
                 *this >> enemy; // remove the enemy from game
 
@@ -339,7 +335,7 @@ void Game::moveEnemies(const float time_elapsed)
 
                     std::function<void()> lambda = [this]()
                     {
-                        removeItem(player_);
+                        removeItem(player_.get());
                         running_ = false;
                     };
 
@@ -354,9 +350,10 @@ void Game::moveEnemies(const float time_elapsed)
 
                 for (auto j = bullets_.cbegin(), next_j = j; j != bullets_.cend(); j = next_j) {
                     ++next_j;
-                    Bullet* bullet = j->second;
 
-                    if (enemy->collidesWithItem(bullet)) {
+                    auto bullet = j->second;
+
+                    if (enemy->collidesWithItem(bullet.get())) {
                         ++(*score_);
                         *this >> bullet; // remove the bullet from game
                         *this >> enemy; // remove the enemy from game
@@ -367,6 +364,7 @@ void Game::moveEnemies(const float time_elapsed)
 
         enemy->animate(time_elapsed);
     }
+
 }
 
 
@@ -380,7 +378,7 @@ void Game::moveBullets(const float time_elapsed)
     for (auto i = bullets_.cbegin(), next_i = i; i != bullets_.cend(); i = next_i) {
         ++next_i;
 
-        Bullet* bullet = i->second;
+        auto bullet = i->second;
 
         bullet->move(time_elapsed);
 

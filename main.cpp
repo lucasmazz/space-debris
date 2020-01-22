@@ -1,12 +1,13 @@
 #include <string>
 #include <vector>
+#include <memory>
 #include <unordered_map>
-#include <stdlib.h>
 
 #include <QApplication>
 #include <QGraphicsView>
 #include <QCloseEvent>
 
+#include "window.h"
 #include "game.h"
 #include "menu.h"
 #include "sprite.h"
@@ -23,39 +24,39 @@ int main(int argc, char* argv[])
     QApplication app(argc, argv);
 
     // Loading sprites.
-    std::unordered_map<std::string, std::vector<Sprite*>> background_sprites;
-    std::unordered_map<std::string, std::vector<Sprite*>> player_sprites;
-    std::unordered_map<std::string, std::vector<Sprite*>> asteroid_sprites;
-    std::unordered_map<std::string, std::vector<Sprite*>> bullet_sprites;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> background_sprites;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> player_sprites;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> asteroid_sprites;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> bullet_sprites;
 
     background_sprites["default"] = {
-        (new Sprite(":/assets/images/background.png", 0)),
+        std::make_shared<Sprite>(":/assets/images/background.png", 0),
     };
 
     player_sprites["default"] = {
-        (new Sprite(":/assets/images/player.png", 0))
+        std::make_shared<Sprite>(":/assets/images/player.png", 0)
     };
 
     asteroid_sprites["default"] = {
-        (new Sprite(":/assets/images/asteroid.png", 0)),
+        std::make_shared<Sprite>(":/assets/images/asteroid.png", 0)
     };
 
     player_sprites["die"] = asteroid_sprites["die"] = {
-        (new Sprite(":/assets/images/explosion00.png", 0.01)),
-        (new Sprite(":/assets/images/explosion01.png", 0.01)),
-        (new Sprite(":/assets/images/explosion02.png", 0.02)),
-        (new Sprite(":/assets/images/explosion03.png", 0.02)),
-        (new Sprite(":/assets/images/explosion04.png", 0.03)),
-        (new Sprite(":/assets/images/explosion05.png", 0.03)),
-        (new Sprite(":/assets/images/explosion06.png", 0.03)),
-        (new Sprite(":/assets/images/explosion07.png", 0.02)),
-        (new Sprite(":/assets/images/explosion08.png", 0.02)),
-        (new Sprite(":/assets/images/explosion09.png", 0.01)),
-        (new Sprite(":/assets/images/explosion10.png", 0.01)),
+        std::make_shared<Sprite>(":/assets/images/explosion00.png", 0.01),
+        std::make_shared<Sprite>(":/assets/images/explosion01.png", 0.01),
+        std::make_shared<Sprite>(":/assets/images/explosion02.png", 0.02),
+        std::make_shared<Sprite>(":/assets/images/explosion03.png", 0.02),
+        std::make_shared<Sprite>(":/assets/images/explosion04.png", 0.03),
+        std::make_shared<Sprite>(":/assets/images/explosion05.png", 0.03),
+        std::make_shared<Sprite>(":/assets/images/explosion06.png", 0.03),
+        std::make_shared<Sprite>(":/assets/images/explosion07.png", 0.02),
+        std::make_shared<Sprite>(":/assets/images/explosion08.png", 0.02),
+        std::make_shared<Sprite>(":/assets/images/explosion09.png", 0.01),
+        std::make_shared<Sprite>(":/assets/images/explosion10.png", 0.01)
     };
 
     bullet_sprites["default"] = {
-        (new Sprite(":/assets/images/bullet.png", 0))
+        std::make_shared<Sprite>(":/assets/images/bullet.png", 0)
     };
 
     Game::sprites.insert({"background", background_sprites});
@@ -64,28 +65,31 @@ int main(int argc, char* argv[])
     Game::sprites.insert({"bullet", bullet_sprites});
 
     // Configuring the view.
-    Game::view = new QGraphicsView();
-    Game::view->setBackgroundBrush(QBrush(QColor(Qt::black)));
-    Game::view->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-    Game::view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    Game::view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    Game::view->setMouseTracking(true);
-    Game::view->setFixedSize(800, 600);
+    Window::view = std::make_unique<QGraphicsView>();
+    Window::view->setBackgroundBrush(QBrush(QColor(Qt::black)));
+    Window::view->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    Window::view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Window::view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    Window::view->setMouseTracking(true);
+    Window::view->setFixedSize(800, 600);
 
     // Configuring sound.
-    Sound::channels(3);
+    Sound::channels(5);
 
     // Configuring menu.
     int font_id = QFontDatabase::addApplicationFont(":/assets/fonts/starjedi.ttf");
     Menu::font_family = QFontDatabase::applicationFontFamilies(font_id).at(0).toStdString();
 
-    Menu* start_game_menu = new Menu(":/assets/images/start.png",
-                                     "space debris", "START", "EXIT",
-                                     startGame, exitGame);
 
-    Game::view->setScene(start_game_menu);
-    Game::view->show();
 
+    Window::scene = std::make_unique<Menu>(":/assets/images/start.png",
+                                           "space debris", "START", "EXIT",
+                                           startGame, exitGame);
+
+
+    Window::view->setScene(Window::scene.get());
+
+    Window::view->show();
 
     return app.exec();
 }
@@ -98,14 +102,13 @@ int main(int argc, char* argv[])
  */
 void startGame()
 {
-    Game* game = new Game(gameOver);
+    Window::scene.reset();
 
-    delete Game::view->scene();
-    Game::view->setMouseTracking(false);
-    Game::view->setScene(game);
-    Game::view->show();
+    Window::scene = std::make_unique<Game>(gameOver);
+    Window::view->setScene(Window::scene.get());
+    Window::view->show();
 
-    game->start();
+    dynamic_cast<Game*>(Window::scene.get())->start();
 }
 
 
@@ -117,13 +120,13 @@ void startGame()
  */
 void gameOver()
 {
-    Menu* game_over_menu = new Menu(":/assets/images/gameover.png",
-                                    "game over", "RESTART", "EXIT",
-                                    startGame, exitGame);
-    delete Game::view->scene();
-    Game::view->setMouseTracking(true);
-    Game::view->setScene(game_over_menu);
-    Game::view->show();
+    Window::scene.reset();
+    Window::scene = std::make_unique<Menu>(":/assets/images/gameover.png",
+                                           "game over",  "RESTART", "EXIT",
+                                           startGame, exitGame);
+
+    Window::view->setScene(Window::scene.get());
+    Window::view->show();
 }
 
 
@@ -134,7 +137,6 @@ void gameOver()
  */
 void exitGame()
 {
-    delete Game::view->scene();
     QApplication::quit();
 }
 

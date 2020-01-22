@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <chrono>
 #include <functional>
-#include <stdlib.h>
+#include <memory>
 
 #include <QTimer>
 #include <QObject>
@@ -35,6 +35,7 @@ public:
     ~Game();
 
     void start();
+    void stop();
 
     void keyPressEvent(QKeyEvent* event);
     void keyReleaseEvent(QKeyEvent* event);
@@ -43,18 +44,18 @@ public slots:
     void loop();
 
 public:
-    void operator<<(Enemy* enemy);
-    void operator>>(Enemy* enemy);
+    void operator<<(std::shared_ptr<Enemy> enemy);
+    void operator>>(std::shared_ptr<Enemy> enemy);
 
-    void operator<<(Bullet* bullet);
-    void operator>>(Bullet* bullet);
+    void operator<<(std::shared_ptr<Bullet> bullet);
+    void operator>>(std::shared_ptr<Bullet> bullet);
 
 private:
-    void add(Enemy* enemy);
-    void remove(Enemy* enemy);
+    void add(std::shared_ptr<Enemy> enemy);
+    void remove(std::shared_ptr<Enemy> enemy);
 
-    void add(Bullet* bullet);
-    void remove(Bullet* bullet);
+    void add(std::shared_ptr<Bullet> bullet);
+    void remove(std::shared_ptr<Bullet> bullet);
 
     void spawnEnemies(const float time_elapsed);
     void moveBackground(const float time_elapsed);
@@ -63,27 +64,25 @@ private:
     void update(const float time_elapsed);
 
 public:
-    static std::unordered_map<std::string, std::unordered_map<std::string, std::vector<Sprite*>>> sprites;
-    static QGraphicsView* view;
-
+    static std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>>> sprites;
 
 private:
     bool running_ = true;
 
-    std::deque<Background*> backgrounds_;
-    std::unordered_map<unsigned int, Enemy*> enemies_;
-    std::unordered_map<unsigned int, Bullet*> bullets_;
+    std::deque<std::unique_ptr<Background>> backgrounds_;
+    std::unordered_map<unsigned int, std::shared_ptr<Enemy>> enemies_;
+    std::unordered_map<unsigned int, std::shared_ptr<Bullet>> bullets_;
 
-    QMediaPlayer* music_;
-    QMediaPlaylist* playlist_;
-    Player* player_;
-    Score* score_;
-    Health* health_;
-    QTimer* timer_;
+    std::unique_ptr<QMediaPlayer> music_;
+    std::unique_ptr<QMediaPlaylist> playlist_;
+    std::unique_ptr<Player> player_;
+    std::unique_ptr<Score> score_;
+    std::unique_ptr<Health> health_;
+    std::unique_ptr<QTimer> timer_;
 
     std::chrono::high_resolution_clock::time_point start_time_;
     std::chrono::high_resolution_clock::time_point stop_time_;
-    float total_time_;
+    float total_time_ = 0;
 
     std::function<void()> callback_;
 

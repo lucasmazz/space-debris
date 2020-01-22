@@ -1,7 +1,7 @@
 #include "enemy.h"
 
 
-Enemy::Enemy(std::unordered_map<std::string, std::vector<Sprite*>> sprites) : Entity(sprites)
+Enemy::Enemy(std::unordered_map<std::string, std::vector<std::shared_ptr<Sprite>>> sprites) : Entity(sprites)
 {
     setTransformOriginPoint(pixmap().width()/2, pixmap().height()/2);
     rotation(rand() % 360);
