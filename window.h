@@ -5,21 +5,25 @@
 
 #include <QGraphicsView>
 #include <QGraphicsScene>
-#include <QMainWindow>
 
 #include "game.h"
 #include "menu.h"
 
 
-class Window : QMainWindow
+class Window
 {
+
+public:
+    static void show(std::shared_ptr<QGraphicsScene> scene);
 
 private:
     Window();
 
 public:
     static std::unique_ptr<QGraphicsView> view;
-    static std::unique_ptr<QGraphicsScene> scene;
+
+private:
+    static std::shared_ptr<QGraphicsScene> scene_;
 
 };
 

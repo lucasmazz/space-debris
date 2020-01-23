@@ -80,17 +80,18 @@ int main(int argc, char* argv[])
     int font_id = QFontDatabase::addApplicationFont(":/assets/fonts/starjedi.ttf");
     Menu::font_family = QFontDatabase::applicationFontFamilies(font_id).at(0).toStdString();
 
+    auto start_game = std::make_shared<Menu>(":/assets/images/start.png",
+                                             "space debris", "START", "EXIT",
+                                             startGame, exitGame);
 
-
-    Window::scene = std::make_unique<Menu>(":/assets/images/start.png",
-                                           "space debris", "START", "EXIT",
-                                           startGame, exitGame);
-
-
-    Window::view->setScene(Window::scene.get());
-
+    Window::show(start_game);
+    /*
+    Window::view->setScene(start_game.get());
     Window::view->show();
 
+    Window::scene.reset();
+    Window::scene = move(start_game);
+    */
     return app.exec();
 }
 
@@ -102,13 +103,20 @@ int main(int argc, char* argv[])
  */
 void startGame()
 {
-    Window::scene.reset();
+    auto game = std::make_shared<Game>(gameOver);
 
-    Window::scene = std::make_unique<Game>(gameOver);
-    Window::view->setScene(Window::scene.get());
+    Window::show(game);
+    game->start();
+    /*
+    Window::view->setScene(game.get());
     Window::view->show();
 
-    dynamic_cast<Game*>(Window::scene.get())->start();
+    game->start();
+
+    // Holds the scene reference.
+    Window::scene.reset();
+    Window::scene = std::move(game);
+    */
 }
 
 
@@ -120,13 +128,18 @@ void startGame()
  */
 void gameOver()
 {
-    Window::scene.reset();
-    Window::scene = std::make_unique<Menu>(":/assets/images/gameover.png",
-                                           "game over",  "RESTART", "EXIT",
-                                           startGame, exitGame);
-
-    Window::view->setScene(Window::scene.get());
+    auto game_over = std::make_shared<Menu>(":/assets/images/gameover.png",
+                                            "game over",  "RESTART", "EXIT",
+                                            startGame, exitGame);
+    Window::show(game_over);
+    /*
+    Window::view->setScene(game_over.get());
     Window::view->show();
+
+    // Holds the scene reference.
+    Window::scene.reset();
+    Window::scene = std::move(game_over);
+    */
 }
 
 
