@@ -1,14 +1,12 @@
 # Space Debris
 
-Space Debris is a simple game made with C++ and QT.
+Space Debris is a simple game made with C++ and Qt.
 
 The game basically consists of using a spaceship to clear asteroids that are on their way to your home planet, which could cause a mass extinction.
 
 ![Alt text](https://github.com/lucasmazz/space-debris/blob/master/images/space-debris.gif?raw=true)
 
 The speed and the number of asteroids appearing at the same time increases with playing time. 
-
-Enjoy.
 
 ## Install
 
@@ -45,4 +43,4 @@ All sprites was downloaded from https://itch.io/ and https://opengameart.org/.
 
 All Sound effects was downloaded from https://freesound.org/.
 
-Background Music was made by Nuclear Ghost (https://nuclearghost.bandcamp.com/).
+Background Music was made by Nuclear Ghost (https://nclrghst.bandcamp.com/).
